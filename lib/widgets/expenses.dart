@@ -28,7 +28,12 @@ class _ExpensesState extends State<Expenses> {
     setState(() {
       _registeredExpenses.add(expense);
     });
-    
+  }
+
+  void _removeExpense(Expense expense){
+    setState(() {
+      _registeredExpenses.remove(expense);
+    });
   }
   
   void _openAddExpenseOVerlay() {
@@ -52,7 +57,7 @@ class _ExpensesState extends State<Expenses> {
       body: Column(
         children: [
           const Text('chart  '),
-          Expanded(child: ExpensesList(expenses: _registeredExpenses))
+          Expanded(child: ExpensesList(expenses: _registeredExpenses, onRemoveExpense: _removeExpense))
         ],
       ),
     );
