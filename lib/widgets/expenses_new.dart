@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:expense_tracker/model/expense.dart';
 
 class ExpensesNew extends StatefulWidget {
-  const ExpensesNew({super.key});
+  const ExpensesNew({super.key, required this.onAddExpense});
 
+  final Function(Expense) onAddExpense;
   @override
   State<ExpensesNew> createState() => _ExpensesNewState();
 }
@@ -26,22 +27,35 @@ class _ExpensesNewState extends State<ExpensesNew> {
     });
   }
 
-  void _submitExpenseData(){
+  void _submitExpenseData() {
     final enteredAmount = double.tryParse(_amountController.text);
-    final amountIsInvalid = enteredAmount == null || enteredAmount <=0 ;
+    final amountIsInvalid = enteredAmount == null || enteredAmount <= 0;
 
-    if(_titleController.text.trim().isEmpty || amountIsInvalid || _selectedDate == null){
-      showDialog(context: context, builder: (ctx) => AlertDialog(
-        title: const Text('Invalid input'),
-        content: const Text('Please make sure a valid title, amount , date and category was entered..'),
-        actions: [
-          TextButton(onPressed: (){
-            Navigator.pop(ctx);
-          }, child: const Text('Okay'))
-        ],
-      ));
+    if (_titleController.text.trim().isEmpty ||
+        amountIsInvalid ||
+        _selectedDate == null) {
+      showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                title: const Text('Invalid input'),
+                content: const Text(
+                    'Please make sure a valid title, amount , date and category was entered..'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                      },
+                      child: const Text('Okay'))
+                ],
+              ));
+      return;
     }
-    return;
+    widget.onAddExpense(Expense(
+        title: _titleController.text,
+        amount: enteredAmount,
+        date: _selectedDate!,
+        category: _selectedCategory));
+    Navigator.pop(context);
   }
 
   @override
@@ -54,7 +68,7 @@ class _ExpensesNewState extends State<ExpensesNew> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
       child: Column(
         children: [
           TextField(
@@ -97,11 +111,13 @@ class _ExpensesNewState extends State<ExpensesNew> {
           const SizedBox(
             height: 10,
           ),
-          const SizedBox(height: 16,),
+          const SizedBox(
+            height: 16,
+          ),
           Row(
             children: [
               DropdownButton(
-                value: _selectedCategory,
+                  value: _selectedCategory,
                   items: Category.values
                       .map(
                         (category) => DropdownMenuItem(
@@ -112,9 +128,8 @@ class _ExpensesNewState extends State<ExpensesNew> {
                       .toList(),
                   onChanged: (val) {
                     setState(() {
-                       _selectedCategory = val!;
+                      _selectedCategory = val!;
                     });
-                   
                   }),
               const Spacer(),
               ElevatedButton(
